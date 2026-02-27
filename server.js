@@ -18,6 +18,12 @@ const BOOKINGS_FILE = path.join(__dirname, 'bookings.json');
 const IMAGES_DIR = path.join(__dirname, 'images');
 const isProduction = process.env.NODE_ENV === 'production';
 
+// En production (Hostinger / reverse proxy), faites confiance à X-Forwarded-Proto
+// sinon les cookies "secure" de session ne sont pas définis et l'admin reste en 401.
+if (isProduction) {
+  app.set('trust proxy', 1);
+}
+
 // Mot de passe admin : obligatoire en production, sinon admin123 en dev
 const ADMIN_PASSWORD = process.env.ADMIN_PASSWORD || (isProduction ? '' : 'admin123');
 if (isProduction && !ADMIN_PASSWORD) {
@@ -95,6 +101,7 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(session({
   secret: process.env.SESSION_SECRET || 'changez-moi-en-production-' + Date.now(),
+  proxy: isProduction,
   resave: false,
   saveUninitialized: false,
   name: 'sid',

@@ -16,6 +16,41 @@ Ce projet est une **application Node.js (Express)**. Vous avez **deux options** 
 
 ---
 
+# Déployer via Git (recommandé)
+
+Votre projet est déjà sur GitHub : **[github.com/NJOUONANG947/Site-salon-de-coiffure](https://github.com/NJOUONANG947/Site-salon-de-coiffure)** (branche `main`).
+
+## Option 1 : Hostinger Business – déploiement Git dans hPanel
+
+1. Souscrivez au plan **Business** (hébergement web) sur [hostinger.com](https://www.hostinger.com).
+2. Dans **hPanel** → **Applications web** (ou **Sites**) → **Créer une application** → **Node.js**.
+3. Choisissez **Connecter un dépôt** / **Git** :
+   - **Dépôt** : `https://github.com/NJOUONANG947/Site-salon-de-coiffure`
+   - **Branche** : `main`
+   - Si demandé, autorisez Hostinger à accéder à votre compte GitHub (OAuth).
+4. **Racine du projet** : laisser la racine (où se trouvent `server.js` et `package.json`).
+5. **Commande de démarrage** : `npm start` ou `node server.js`.
+6. **Variables d’environnement** (section Env) : ajoutez `ADMIN_PASSWORD`, `SESSION_SECRET`, `NODE_ENV=production`.
+7. **Déployer** : lancer le déploiement. Hostinger fait `git clone` + `npm install` + démarrage.
+8. Associez votre **domaine** à l’application et activez le **SSL**.
+
+Pour les mises à jour : poussez sur `main` (`git push`), puis dans hPanel relancez un **redéploiement** (bouton « Redeploy » ou « Deploy ») pour que Hostinger refasse un pull et redémarre l’app.
+
+## Option 2 : VPS Hostinger – déploiement Git en SSH
+
+Sur un VPS, clonez le dépôt puis suivez la section **Option B** (VPS) plus bas. Sur le serveur :
+
+```bash
+cd /var/www
+sudo git clone https://github.com/NJOUONANG947/Site-salon-de-coiffure.git site-coiffure
+cd site-coiffure
+npm install
+```
+
+Puis créez `.env`, configurez PM2 et Nginx comme indiqué en Option B. Pour mettre à jour plus tard : `git pull` puis `pm2 restart site-coiffure`.
+
+---
+
 # Option A : Hébergement Web Business (Node.js infogéré)
 
 Pas besoin de VPS ni de SSH : Hostinger gère tout depuis **hPanel**.
@@ -35,7 +70,7 @@ Pas besoin de VPS ni de SSH : Hostinger gère tout depuis **hPanel**.
 
 Une des options suivantes :
 
-- **GitHub** : connecter votre dépôt (si le code est sur GitHub), choisir la branche (ex. `main`).
+- **GitHub** : connecter le dépôt `https://github.com/NJOUONANG947/Site-salon-de-coiffure`, branche `main`.
 - **ZIP** : préparer une archive du projet **sans** le dossier `node_modules`, puis l’importer.
 - **Déploiement depuis l’IDE** : si Hostinger propose l’extension (VS Code / Cursor), suivre leur guide.
 
@@ -114,11 +149,11 @@ npm -v
 
 ## 4. Envoyer le projet sur le serveur
 
-**Option A – Git (si le projet est sur GitHub/GitLab)**  
-Sur le serveur :
+**Option A – Git (recommandé)**  
+Sur le serveur (remplacez `/var/www` par le chemin de votre choix) :
 ```bash
 cd /var/www
-sudo git clone https://github.com/VOTRE_UTILISATEUR/VOTRE_REPO.git site-coiffure
+sudo git clone https://github.com/NJOUONANG947/Site-salon-de-coiffure.git site-coiffure
 cd site-coiffure
 ```
 
@@ -258,11 +293,7 @@ Puis `pm2 restart site-coiffure`. En production, Nginx + PM2 est préférable.
 
 1. **Ne jamais commiter `.env`** : il reste uniquement sur le serveur.
 2. **Sauvegardes** : `content.json`, `bookings.json` et le dossier `images/` contiennent vos données ; sauvegardez-les régulièrement (backups Hostinger ou script).
-3. **Mises à jour** : après modification du code, re-upload des fichiers puis :
-   ```bash
-   pm2 restart site-coiffure
-   ```
-   Si vous utilisez Git : `git pull` puis `pm2 restart site-coiffure`.
+3. **Mises à jour** : après modification du code, soit vous poussez sur GitHub puis sur le VPS : `git pull` puis `pm2 restart site-coiffure`. Soit vous re-uploadez les fichiers puis `pm2 restart site-coiffure`.
 
 ---
 
