@@ -24,9 +24,9 @@ if (isProduction) {
   app.set('trust proxy', 1);
 }
 
-// Secrets admin (production recommandé, mais ne bloque plus le démarrage si absent)
-const SESSION_SECRET = process.env.SESSION_SECRET || '';
-const ADMIN_PASSWORD = process.env.ADMIN_PASSWORD || (isProduction ? 'admin123' : 'admin123');
+// Secrets admin (en prod, configurez-les dans les variables d'environnement Hostinger)
+const ADMIN_PASSWORD = process.env.ADMIN_PASSWORD || 'admin123';
+const SESSION_SECRET = process.env.SESSION_SECRET || 'dev-secret-change-me';
 
 // Rate limit login : 5 tentatives max, puis blocage 15 min
 const loginAttempts = new Map();
@@ -97,7 +97,7 @@ const upload = multer({
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(session({
-  secret: SESSION_SECRET || 'dev-secret-change-me',
+  secret: SESSION_SECRET,
   proxy: isProduction,
   resave: false,
   saveUninitialized: false,
