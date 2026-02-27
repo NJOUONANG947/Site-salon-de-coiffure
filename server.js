@@ -24,6 +24,12 @@ if (isProduction) {
   app.set('trust proxy', 1);
 }
 
+const SESSION_SECRET = process.env.SESSION_SECRET || '';
+if (isProduction && !SESSION_SECRET) {
+  console.error('En production, définissez SESSION_SECRET dans .env');
+  process.exit(1);
+}
+
 // Mot de passe admin : obligatoire en production, sinon admin123 en dev
 const ADMIN_PASSWORD = process.env.ADMIN_PASSWORD || (isProduction ? '' : 'admin123');
 if (isProduction && !ADMIN_PASSWORD) {
@@ -100,14 +106,15 @@ const upload = multer({
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(session({
-  secret: process.env.SESSION_SECRET || 'changez-moi-en-production-' + Date.now(),
+  secret: isProduction ? SESSION_SECRET : (SESSION_SECRET || 'dev-secret-change-me'),
   proxy: isProduction,
   resave: false,
   saveUninitialized: false,
   name: 'sid',
   cookie: {
     httpOnly: true,
-    secure: isProduction,
+    // 'auto' évite les soucis derrière reverse proxy (Hostinger) tout en restant secure si HTTPS est détecté
+    secure: isProduction ? 'auto' : false,
     sameSite: 'lax',
     maxAge: 24 * 60 * 60 * 1000
   }
