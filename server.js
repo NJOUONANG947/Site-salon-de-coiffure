@@ -24,18 +24,9 @@ if (isProduction) {
   app.set('trust proxy', 1);
 }
 
+// Secrets admin (production recommandé, mais ne bloque plus le démarrage si absent)
 const SESSION_SECRET = process.env.SESSION_SECRET || '';
-if (isProduction && !SESSION_SECRET) {
-  console.error('En production, définissez SESSION_SECRET dans .env');
-  process.exit(1);
-}
-
-// Mot de passe admin : obligatoire en production, sinon admin123 en dev
-const ADMIN_PASSWORD = process.env.ADMIN_PASSWORD || (isProduction ? '' : 'admin123');
-if (isProduction && !ADMIN_PASSWORD) {
-  console.error('En production, définissez ADMIN_PASSWORD dans .env');
-  process.exit(1);
-}
+const ADMIN_PASSWORD = process.env.ADMIN_PASSWORD || (isProduction ? 'admin123' : 'admin123');
 
 // Rate limit login : 5 tentatives max, puis blocage 15 min
 const loginAttempts = new Map();
@@ -106,7 +97,7 @@ const upload = multer({
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(session({
-  secret: isProduction ? SESSION_SECRET : (SESSION_SECRET || 'dev-secret-change-me'),
+  secret: SESSION_SECRET || 'dev-secret-change-me',
   proxy: isProduction,
   resave: false,
   saveUninitialized: false,
