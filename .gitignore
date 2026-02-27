@@ -1,0 +1,20 @@
+# Dépendances
+node_modules/
+
+# Fichiers sensibles (ne jamais commiter)
+.env
+
+# Données générées (optionnel : à commiter si vous voulez un fichier vide en repo)
+# bookings.json
+
+# Logs et cache
+*.log
+npm-debug.log*
+.DS_Store
+Thumbs.db
+
+# IDE
+.idea/
+.vscode/
+*.swp
+*.swo

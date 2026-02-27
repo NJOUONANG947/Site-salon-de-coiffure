@@ -1,0 +1,384 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Administration – Site coiffure</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700&family=Nunito+Sans:wght@400;600;700&display=swap" rel="stylesheet">
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: 'Nunito Sans', sans-serif; background: #fef8fa; color: #4a4043; min-height: 100vh; padding: 2rem; }
+    .container { max-width: 900px; margin: 0 auto; }
+    h1 { font-family: 'Nunito', sans-serif; margin-bottom: 1.5rem; color: #d4a5b0; }
+    h2 { font-size: 1.25rem; margin: 2rem 0 1rem; color: #4a4043; border-bottom: 1px solid #e8c4cc; padding-bottom: 0.5rem; }
+    form { background: #fff; padding: 1.5rem; border-radius: 16px; box-shadow: 0 2px 20px rgba(74,64,67,0.08); margin-bottom: 1.5rem; }
+    label { display: block; font-weight: 600; margin-bottom: 0.35rem; font-size: 0.9rem; }
+    input[type="text"], input[type="password"], input[type="email"], input[type="url"], input[type="file"], select, textarea {
+      width: 100%; padding: 0.65rem 0.9rem; margin-bottom: 1rem; border: 1px solid #e8c4cc; border-radius: 10px; font-family: inherit; font-size: 1rem;
+    }
+    textarea { min-height: 80px; resize: vertical; }
+    button, .btn {
+      display: inline-block; padding: 0.7rem 1.4rem; background: #d4a5b0; color: #fff; border: none; border-radius: 999px;
+      font-family: inherit; font-weight: 600; cursor: pointer; font-size: 0.95rem;
+    }
+    button:disabled, .btn:disabled { opacity: 0.6; cursor: not-allowed; }
+    button:hover:not(:disabled), .btn:hover:not(:disabled) { background: #e8c4cc; }
+    .btn-secondary { background: #fff; color: #d4a5b0; border: 2px solid #d4a5b0; margin-left: 0.5rem; }
+    .btn-secondary:hover:not(:disabled) { background: #fdf2f5; }
+    .btn-danger { background: #c62828; color: #fff; border: none; padding: 0.4rem 0.8rem; font-size: 0.85rem; }
+    .btn-danger:hover:not(:disabled) { background: #b71c1c; }
+    .msg { padding: 0.75rem; border-radius: 10px; margin-bottom: 1rem; display: none; }
+    .msg.ok { background: #e8f5e9; color: #2e7d32; display: block; }
+    .msg.err { background: #ffebee; color: #c62828; display: block; }
+    .logout { float: right; }
+    .grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
+    @media (max-width: 600px) { .grid2 { grid-template-columns: 1fr; } }
+    #loginBox { max-width: 400px; margin: 4rem auto; }
+    #dashboard { display: none; }
+    .small { font-size: 0.85rem; color: #7a6d70; margin-top: 0.25rem; }
+    .images-list { display: grid; grid-template-columns: repeat(auto-fill, minmax(120px, 1fr)); gap: 0.75rem; list-style: none; }
+    .images-list li { background: #fdf2f5; border-radius: 10px; padding: 0.5rem; text-align: center; position: relative; }
+    .images-list img { width: 100%; height: 80px; object-fit: cover; border-radius: 6px; display: block; margin-bottom: 0.35rem; }
+    .images-list .name { font-size: 0.75rem; word-break: break-all; color: #5c5254; }
+    .images-list li.err { color: #c62828; }
+    .images-list code { background: #f5f5f5; padding: 0.1rem 0.3rem; border-radius: 4px; font-size: 0.8em; }
+    .images-list .del { margin-top: 0.35rem; }
+    .loading { opacity: 0.7; pointer-events: none; }
+    .badge { display: inline-block; background: #e8c4cc; color: #4a4043; padding: 0.2rem 0.5rem; border-radius: 6px; font-size: 0.8rem; margin-left: 0.5rem; }
+    .banner-site { background: #e3f2fd; border: 1px solid #90caf9; border-radius: 12px; padding: 1rem 1.25rem; margin-bottom: 1.5rem; font-size: 0.95rem; }
+    .banner-site a { color: #1565c0; font-weight: 600; }
+    .banner-site .btn-open { margin-top: 0.5rem; }
+    .bookings-list { background: #fff; border-radius: 12px; padding: 1rem; box-shadow: 0 2px 20px rgba(74,64,67,0.08); max-height: 400px; overflow-y: auto; }
+    .bookings-list .booking-item { border-bottom: 1px solid #e8c4cc; padding: 0.75rem 0; font-size: 0.9rem; }
+    .bookings-list .booking-item:last-child { border-bottom: none; }
+    .bookings-list .booking-item strong { color: #4a4043; }
+    .bookings-list .booking-item .meta { color: #7a6d70; font-size: 0.85rem; margin-top: 0.25rem; }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div id="loginBox">
+      <h1>Administration</h1>
+      <p class="small" style="margin-bottom: 1rem;">Connectez-vous pour gérer les images et le contenu du site.</p>
+      <div id="loginMsg" class="msg"></div>
+      <form id="loginForm">
+        <label for="password">Mot de passe</label>
+        <input type="password" id="password" name="password" required autocomplete="current-password" placeholder="Mot de passe admin">
+        <button type="submit" id="loginBtn">Connexion</button>
+      </form>
+    </div>
+
+    <div id="dashboard">
+      <h1>Tableau de bord <button type="button" class="btn btn-secondary logout" id="logoutBtn">Déconnexion</button></h1>
+      <div class="banner-site">
+        <strong>Pour voir les changements sur le site</strong>, ouvrez-le à la <strong>même adresse</strong> que l’admin (ex. <span id="siteUrl"></span>). N’ouvrez pas les fichiers HTML en double-clic.
+        <div class="btn-open"><a href="/" target="_blank" rel="noopener" id="openSiteLink" class="btn">Ouvrir le site</a></div>
+      </div>
+
+      <h2>📤 Upload d'images</h2>
+      <div id="uploadMsg" class="msg"></div>
+      <form id="uploadForm">
+        <label for="destination">Emplacement</label>
+        <select id="destination" name="destination" required>
+          <option value="">Choisir...</option>
+          <optgroup label="Page d'accueil / À propos">
+            <option value="images" data-filename="01.jpeg">Accueil (photo principale) → 01.jpeg</option>
+            <option value="images" data-filename="02.jpeg">À propos (salon) → 02.jpeg</option>
+          </optgroup>
+          <optgroup label="Galerie (6 photos)">
+            <option value="images" data-filename="03.jpeg">Galerie 1 → 03.jpeg</option>
+            <option value="images" data-filename="04.jpeg">Galerie 2 → 04.jpeg</option>
+            <option value="images" data-filename="05.jpeg">Galerie 3 → 05.jpeg</option>
+            <option value="images" data-filename="06.jpeg">Galerie 4 → 06.jpeg</option>
+            <option value="images" data-filename="07.jpeg">Galerie 5 → 07.jpeg</option>
+            <option value="images" data-filename="08.jpeg">Galerie 6 → 08.jpeg</option>
+          </optgroup>
+          <optgroup label="Prestations (14 premières)">
+            <option value="images" data-filename="09.jpeg">Prestation 1 → 09.jpeg</option>
+            <option value="images" data-filename="10.jpeg">Prestation 2 → 10.jpeg</option>
+            <option value="images" data-filename="11.jpeg">Prestation 3 → 11.jpeg</option>
+            <option value="images" data-filename="12.jpeg">Prestation 4 → 12.jpeg</option>
+            <option value="images" data-filename="13.jpeg">Prestation 5 → 13.jpeg</option>
+            <option value="images" data-filename="14.jpeg">Prestation 6 → 14.jpeg</option>
+            <option value="images" data-filename="15.jpeg">Prestation 7 → 15.jpeg</option>
+            <option value="images" data-filename="16.jpeg">Prestation 8 → 16.jpeg</option>
+            <option value="images" data-filename="17.jpeg">Prestation 9 → 17.jpeg</option>
+            <option value="images" data-filename="18.jpeg">Prestation 10 → 18.jpeg</option>
+            <option value="images" data-filename="19.jpeg">Prestation 11 → 19.jpeg</option>
+            <option value="images" data-filename="20.jpeg">Prestation 12 → 20.jpeg</option>
+            <option value="images" data-filename="21.jpeg">Prestation 13 → 21.jpeg</option>
+            <option value="images" data-filename="22.jpeg">Prestation 14 → 22.jpeg</option>
+          </optgroup>
+        </select>
+        <input type="hidden" name="filename" id="uploadFilename" value="">
+        <label for="file">Fichier image (JPG, PNG, WebP, max 10 Mo)</label>
+        <input type="file" id="file" name="file" accept=".jpg,.jpeg,.png,.webp,.gif" required>
+        <button type="submit" id="uploadBtn">Envoyer l'image</button>
+      </form>
+
+      <h2>🖼️ Images du site <span class="badge" id="imagesCount">0</span></h2>
+      <p class="small" style="margin-bottom: 0.5rem;"><strong>Ce sont les mêmes images que sur le site.</strong> Supprimer ici = l'image disparaît du site. Vous pouvez les remplacer via l’upload ci‑dessus. Actualisez la page du site pour voir les nouvelles images.</p>
+      <ul class="images-list" id="imagesList"></ul>
+
+      <h2>📅 Demandes de réservation <span class="badge" id="bookingsCount">0</span></h2>
+      <p class="small" style="margin-bottom: 0.5rem;">Les demandes envoyées via le formulaire « Book » du site.</p>
+      <div id="bookingsList" class="bookings-list"></div>
+
+      <h2>✏️ Modifier le contenu du site</h2>
+      <div id="contentMsg" class="msg"></div>
+      <form id="contentForm">
+        <label for="businessName">Nom du business</label>
+        <input type="text" id="businessName" name="businessName" placeholder="African Hair Braiding by Alvine">
+        <label for="businessTagline">Sous-titre du logo (ex: by Alvine)</label>
+        <input type="text" id="businessTagline" name="businessTagline" placeholder="by Alvine">
+        <div class="grid2">
+          <div>
+            <label for="phone">Téléphone (affiché)</label>
+            <input type="text" id="phone" name="phone" placeholder="(267) 504-8573">
+          </div>
+          <div>
+            <label for="phoneRaw">Téléphone (lien, ex: +12675048573)</label>
+            <input type="text" id="phoneRaw" name="phoneRaw" placeholder="+12675048573">
+          </div>
+        </div>
+        <label for="email">E-mail</label>
+        <input type="email" id="email" name="email" placeholder="contact@exemple.com">
+        <div class="grid2">
+          <div>
+            <label for="address">Adresse (rue)</label>
+            <input type="text" id="address" name="address" placeholder="Hamrick Circle">
+          </div>
+          <div>
+            <label for="city">Ville / Code postal</label>
+            <input type="text" id="city" name="city" placeholder="San Antonio, TX 78252">
+          </div>
+        </div>
+        <label for="facebook">Lien Facebook</label>
+        <input type="url" id="facebook" name="facebook" placeholder="https://...">
+        <label for="googleMaps">Lien Google Maps</label>
+        <input type="url" id="googleMaps" name="googleMaps" placeholder="https://...">
+        <label for="heroTitle">Titre de la page d'accueil</label>
+        <input type="text" id="heroTitle" name="heroTitle" placeholder="African Hair Braiding by Alvine">
+        <label for="heroSubtitle">Sous-titre de la page d'accueil</label>
+        <textarea id="heroSubtitle" name="heroSubtitle" placeholder="Description courte..."></textarea>
+        <label for="aboutIntro">À propos – Introduction</label>
+        <textarea id="aboutIntro" name="aboutIntro"></textarea>
+        <label for="aboutStory">À propos – Votre histoire</label>
+        <textarea id="aboutStory" name="aboutStory"></textarea>
+        <label for="aboutPromise">À propos – Votre promesse</label>
+        <textarea id="aboutPromise" name="aboutPromise"></textarea>
+        <button type="submit" id="contentBtn">Enregistrer le contenu</button>
+      </form>
+    </div>
+  </div>
+
+  <script>
+    const API = '/api';
+    function showMsg(el, text, isErr) {
+      el.className = 'msg ' + (isErr ? 'err' : 'ok');
+      el.textContent = text;
+      el.style.display = 'block';
+    }
+
+    const fetchOpts = { credentials: 'include' };
+    function apiGet(url) { return fetch(API + url, fetchOpts); }
+    function apiPost(url, body) { return fetch(API + url, { method: 'POST', credentials: 'include', headers: body ? { 'Content-Type': 'application/json' } : {}, body: body ? JSON.stringify(body) : undefined }); }
+    function apiPut(url, body) { return fetch(API + url, { method: 'PUT', credentials: 'include', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) }); }
+    function apiDelete(url) { return fetch(API + url, { method: 'DELETE', credentials: 'include' }); }
+
+    async function checkAuth() {
+      try {
+        const r = await apiGet('/me');
+        if (r.ok) {
+          document.getElementById('loginBox').style.display = 'none';
+          document.getElementById('dashboard').style.display = 'block';
+          var origin = window.location.origin;
+          document.getElementById('siteUrl').textContent = origin;
+          document.getElementById('openSiteLink').href = origin + '/';
+          loadContent();
+          loadImages();
+          loadBookings();
+        } else {
+          document.getElementById('loginBox').style.display = 'block';
+          document.getElementById('dashboard').style.display = 'none';
+        }
+      } catch (e) {
+        document.getElementById('loginBox').style.display = 'block';
+        document.getElementById('dashboard').style.display = 'none';
+      }
+    }
+
+    document.getElementById('loginForm').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const msg = document.getElementById('loginMsg');
+      const btn = document.getElementById('loginBtn');
+      const password = document.getElementById('password').value;
+      btn.disabled = true;
+      try {
+        const r = await apiPost('/login', { password });
+        const data = await r.json().catch(() => ({}));
+        if (r.ok) {
+          showMsg(msg, 'Connexion réussie. Redirection...', false);
+          setTimeout(() => location.reload(), 500);
+          return;
+        }
+        if (r.status === 429) {
+          showMsg(msg, data.error || 'Trop de tentatives. Réessayez plus tard.', true);
+        } else {
+          showMsg(msg, data.error || 'Mot de passe incorrect', true);
+        }
+      } catch (err) {
+        showMsg(msg, 'Erreur de connexion', true);
+      }
+      btn.disabled = false;
+    });
+
+    document.getElementById('logoutBtn').addEventListener('click', async () => {
+      await apiPost('/logout');
+      location.reload();
+    });
+
+    document.getElementById('destination').addEventListener('change', function() {
+      const opt = this.selectedOptions[0];
+      document.getElementById('uploadFilename').value = (opt && opt.dataset.filename) || '';
+    });
+
+    document.getElementById('uploadForm').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const msg = document.getElementById('uploadMsg');
+      const btn = document.getElementById('uploadBtn');
+      const destSelect = document.getElementById('destination');
+      const opt = destSelect.selectedOptions[0];
+      const filename = document.getElementById('uploadFilename').value || (opt && opt.dataset.filename) || '';
+      const fileInput = document.getElementById('file');
+      if (!fileInput.files.length) { showMsg(msg, 'Choisissez un fichier', true); return; }
+      const formData = new FormData();
+      formData.append('destination', (opt && opt.value) || 'images');
+      formData.append('filename', filename || fileInput.files[0].name);
+      formData.append('file', fileInput.files[0]);
+      btn.disabled = true;
+      document.getElementById('uploadForm').classList.add('loading');
+      try {
+        const r = await fetch(API + '/upload', { method: 'POST', credentials: 'include', body: formData });
+        const data = await r.json().catch(() => ({}));
+        if (r.ok) {
+          showMsg(msg, 'Image enregistrée : ' + (data.filename || data.url) + ' — Actualisez la page du site pour l\'afficher.', false);
+          fileInput.value = '';
+          loadImages();
+        } else {
+          showMsg(msg, data.error || 'Erreur lors de l\'upload', true);
+        }
+      } catch (err) {
+        showMsg(msg, 'Erreur réseau', true);
+      }
+      btn.disabled = false;
+      document.getElementById('uploadForm').classList.remove('loading');
+    });
+
+    async function loadBookings() {
+      const listEl = document.getElementById('bookingsList');
+      const countEl = document.getElementById('bookingsCount');
+      if (!listEl) return;
+      try {
+        const r = await apiGet('/bookings');
+        const data = await r.json().catch(function() { return {}; });
+        const bookings = data.bookings || [];
+        if (countEl) countEl.textContent = bookings.length;
+        if (bookings.length === 0) {
+          listEl.innerHTML = '<p class="small">Aucune demande pour le moment.</p>';
+          return;
+        }
+        listEl.innerHTML = bookings.map(function(b) {
+          var d = b.createdAt ? new Date(b.createdAt).toLocaleString('fr-FR', { dateStyle: 'short', timeStyle: 'short' }) : '';
+          return '<div class="booking-item"><strong>' + (b.nom || '') + '</strong> — ' + (b.telephone || '') + ' · ' + (b.email || '') + '<div class="meta">' + (b.prestation ? 'Service: ' + b.prestation + ' · ' : '') + (b.date ? 'Date: ' + b.date + (b.creneau ? ' (' + b.creneau + ')' : '') + ' · ' : '') + (b.message ? 'Message: ' + b.message.substring(0, 80) + (b.message.length > 80 ? '…' : '') + ' · ' : '') + d + '</div></div>';
+        }).join('');
+      } catch (e) {
+        listEl.innerHTML = '<p class="small">Impossible de charger les réservations.</p>';
+        if (countEl) countEl.textContent = '0';
+      }
+    }
+
+    async function loadImages() {
+      const listEl = document.getElementById('imagesList');
+      const countEl = document.getElementById('imagesCount');
+      try {
+        const r = await apiGet('/images');
+        if (r.status === 401) {
+          countEl.textContent = '0';
+          listEl.innerHTML = '<li class="small err">Session expirée. Reconnectez-vous.</li>';
+          return;
+        }
+        const data = await r.json().catch(function() { return {}; });
+        const images = data.images || [];
+        countEl.textContent = images.length;
+        if (images.length === 0) {
+          listEl.innerHTML = '<li class="small">Aucune image (JPG, PNG, WebP, GIF) dans le dossier <code>images/</code>. Envoyez des images via le formulaire ci‑dessus.</li>';
+          return;
+        }
+        listEl.innerHTML = images.map(function(img) {
+          const name = img.name || img.path;
+          const url = '/' + (img.path || img.name);
+          return '<li><img src="' + url + '?t=' + Date.now() + '" alt="" onerror="this.style.background=\'#eee\';this.alt=\'?\';"><span class="name">' + name + '</span><div class="del"><button type="button" class="btn btn-danger" data-filename="' + name + '">Supprimer</button></div></li>';
+        }).join('');
+        listEl.querySelectorAll('.btn-danger').forEach(function(b) {
+          b.addEventListener('click', function() {
+            if (!confirm('Supprimer cette image ?')) return;
+            const fn = b.getAttribute('data-filename');
+            apiDelete('/images/' + encodeURIComponent(fn))
+              .then(function(res) { return res.json().then(function(d) { return { ok: res.ok, data: d }; }); })
+              .then(function(result) {
+                if (result.ok) loadImages();
+                else alert(result.data.error || 'Erreur');
+              });
+          });
+        });
+      } catch (e) {
+        listEl.innerHTML = '<li class="small">Impossible de charger la liste (vérifiez que le serveur tourne avec npm start).</li>';
+        countEl.textContent = '0';
+      }
+    }
+
+    async function loadContent() {
+      const form = document.getElementById('contentForm');
+      try {
+        const r = await apiGet('/content');
+        const data = await r.json();
+        Object.keys(data).forEach(function(key) {
+          const el = form.querySelector('[name="' + key + '"]');
+          if (el) el.value = data[key] || '';
+        });
+      } catch (e) {}
+    }
+
+    document.getElementById('contentForm').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const msg = document.getElementById('contentMsg');
+      const btn = document.getElementById('contentBtn');
+      const form = document.getElementById('contentForm');
+      const body = {};
+      form.querySelectorAll('input, textarea, select').forEach(function(el) {
+        if (el.name && el.type !== 'file') body[el.name] = el.value;
+      });
+      btn.disabled = true;
+      form.classList.add('loading');
+      try {
+        const r = await apiPut('/content', body);
+        const data = await r.json().catch(() => ({}));
+        if (r.ok) {
+          showMsg(msg, 'Contenu enregistré. Ouvrez le site (bouton ci‑dessus) et actualisez la page pour voir les changements.', false);
+        } else {
+          showMsg(msg, data.error || 'Erreur', true);
+        }
+      } catch (err) {
+        showMsg(msg, 'Erreur réseau', true);
+      }
+      btn.disabled = false;
+      form.classList.remove('loading');
+    });
+
+    checkAuth();
+  </script>
+</body>
+</html>

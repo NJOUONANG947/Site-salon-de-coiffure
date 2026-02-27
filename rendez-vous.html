@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Book your appointment at African Hair Braiding by Alvine – San Antonio, TX. $10 deposit required.">
+  <title>Book – African Hair Braiding by Alvine | San Antonio, TX</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700&family=Nunito+Sans:ital,wght@0,400;0,600;0,700;1,400&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+  <header class="site-header">
+    <div class="container">
+      <a href="index.html" class="logo">African Hair Braiding <span>by Alvine</span></a>
+      <button type="button" class="bouton-menu" aria-label="Open menu" aria-expanded="false">
+        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/></svg>
+      </button>
+      <nav>
+        <ul class="nav-principale">
+          <li><a href="index.html">Home</a></li>
+          <li><a href="apropos.html">About</a></li>
+          <li><a href="prestations.html">Services & Prices</a></li>
+          <li><a href="galerie.html">Gallery</a></li>
+          <li><a href="rendez-vous.html">Book</a></li>
+          <li><a href="contact.html">Contact</a></li>
+        </ul>
+      </nav>
+    </div>
+  </header>
+
+  <main>
+    <section class="hero anim-fade-in-up" style="min-height: 35vh;">
+      <div class="container">
+        <h1 class="anim-fade-in-up anim-delay-1">Book an appointment</h1>
+        <p class="sous-titre anim-fade-in-up anim-delay-2">Send your details and the service you want. I will get back to you to confirm. A $10 non-refundable, non-transferable deposit is required to book — it will go toward your total balance.</p>
+      </div>
+    </section>
+
+    <section class="anim-fade-in-up anim-delay-1">
+      <div class="container">
+        <div class="formulaire-bloc">
+          <div class="message-formulaire" role="status" aria-live="polite"></div>
+          <form id="formulaire-rendez-vous" method="post" action="#">
+            <div class="formulaire-groupe">
+              <label for="rdv-nom">Name <span aria-hidden="true">*</span></label>
+              <input type="text" id="rdv-nom" name="nom" required autocomplete="name">
+            </div>
+            <div class="formulaire-groupe">
+              <label for="rdv-telephone">Phone <span aria-hidden="true">*</span></label>
+              <input type="tel" id="rdv-telephone" name="telephone" required autocomplete="tel" placeholder="(267) 504-8573">
+            </div>
+            <div class="formulaire-groupe">
+              <label for="rdv-email">Email <span aria-hidden="true">*</span></label>
+              <input type="email" id="rdv-email" name="email" required autocomplete="email">
+            </div>
+            <div class="formulaire-groupe">
+              <label for="rdv-prestation">Service requested</label>
+              <select id="rdv-prestation" name="prestation">
+                <option value="">Choose a service</option>
+                <option value="two-cornrow-jumbo">Two cornrow Jumbo – $60</option>
+                <option value="senegalaise-boho">Sénégalaise boho braids – $160</option>
+                <option value="jumbo-knotless-boho">Jumbo Knotless braids boho – $140</option>
+                <option value="mens-braids">Men's braids – $65</option>
+                <option value="mens-box-braids">Men's box braids – $80</option>
+                <option value="knotless-bob-boho">Knotless Bob Bohemian braid – $160</option>
+                <option value="small-boho">Small boho braids – $225</option>
+                <option value="small-soft-locs">Small Soft locs – $170</option>
+                <option value="medium-knotless-200">Medium Knotless braids – $200</option>
+                <option value="jumbo-knotless">Jumbo Knotless braids – $140</option>
+                <option value="stitch-cornrow">Stitch cornrow – $85</option>
+                <option value="boho-twist">Boho twist – $140</option>
+                <option value="medium-knotless-160">Medium Knotless braids – $160</option>
+                <option value="half-cornrows-box">Half Cornrows and Half Box Braids – $170</option>
+                <option value="half-cornrows-wig">Half Cornrows and Half wig – $120</option>
+                <option value="micro-twist">Micro twist with hair add – $1000</option>
+                <option value="heal-braids-box">Heal braids and box braids – $160</option>
+                <option value="big-twist">Big twist – $160</option>
+                <option value="big-ponytail">Big Ponytail – $110</option>
+                <option value="french-knotless">French Knotless braids – $220</option>
+                <option value="extra-small-knotless">Extra small Knotless braids – $300</option>
+                <option value="crochet-braids">Crochet braids – $100</option>
+                <option value="autre">Other</option>
+              </select>
+            </div>
+            <div class="formulaire-groupe">
+              <label for="rdv-date">Preferred date</label>
+              <input type="date" id="rdv-date" name="date" min="">
+            </div>
+            <div class="formulaire-groupe">
+              <label for="rdv-creneau">Preferred time</label>
+              <select id="rdv-creneau" name="creneau">
+                <option value="">Any</option>
+                <option value="matin">Morning</option>
+                <option value="apres-midi">Afternoon</option>
+              </select>
+            </div>
+            <div class="formulaire-groupe">
+              <label for="rdv-message">Message or details</label>
+              <textarea id="rdv-message" name="message" rows="3" placeholder="Hair length, first visit, etc."></textarea>
+            </div>
+            <p class="formulaire-legal">
+              By submitting this form, you agree that your data may be used to contact you about your appointment.
+            </p>
+            <button type="submit" class="bouton bouton-principal" style="width: 100%;">Send my request</button>
+          </form>
+        </div>
+        <p class="texte-centre mb-1" style="margin-top: 1.5rem;">You can also call or text <a href="tel:+12675048573">(267) 504-8573</a> to book directly.</p>
+      </div>
+    </section>
+  </main>
+
+  <footer class="site-footer anim-fade-in">
+    <div class="container">
+      <div class="footer-grid">
+        <div>
+          <h4>African Hair Braiding by Alvine</h4>
+          <p>San Antonio, TX 78252</p>
+          <div class="footer-reseaux">
+            <a href="https://www.facebook.com/share/1DpMEGNFhg/?mibextid=wwXIfr" target="_blank" rel="noopener" aria-label="Facebook"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" width="22" height="22" aria-hidden="true"><path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/></svg></a>
+            <a href="https://maps.app.goo.gl/H9T6pZWH8DgsRgXq8?g_st=ic" target="_blank" rel="noopener" aria-label="Google Maps">Map</a>
+          </div>
+        </div>
+        <div>
+          <h4>Contact</h4>
+          <p>Hamrick Circle, San Antonio, TX 78252</p>
+          <p><a href="tel:+12675048573">(267) 504-8573</a></p>
+        </div>
+      </div>
+      <div class="footer-bottom">
+        <p>© 2025 African Hair Braiding by Alvine. All rights reserved.</p>
+      </div>
+    </div>
+  </footer>
+
+  <script src="js/main.js"></script>
+  <script src="js/content-loader.js"></script>
+  <script>
+    (function () {
+      var input = document.getElementById('rdv-date');
+      if (input) {
+        var today = new Date().toISOString().split('T')[0];
+        input.setAttribute('min', today);
+      }
+    })();
+  </script>
+</body>
+</html>
