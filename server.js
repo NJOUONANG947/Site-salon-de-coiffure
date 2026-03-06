@@ -298,7 +298,10 @@ app.get('/api/bookings', requireAuth, (req, res) => {
 });
 
 // Page admin : protégée côté client (le HTML charge, le JS redirige si non connecté)
-app.get('/admin', (req, res) => res.redirect(301, '/admin/'));
+// Servir pour /admin et /admin/ sans redirection pour éviter une boucle derrière le proxy Hostinger
+app.get('/admin', (req, res) => {
+  res.sendFile(path.join(__dirname, 'admin', 'index.html'));
+});
 app.get('/admin/', (req, res) => {
   res.sendFile(path.join(__dirname, 'admin', 'index.html'));
 });
