@@ -55,6 +55,13 @@
     .bookings-list .booking-item:last-child { border-bottom: none; }
     .bookings-list .booking-item strong { color: #4a4043; }
     .bookings-list .booking-item .meta { color: #7a6d70; font-size: 0.85rem; margin-top: 0.25rem; }
+    .prestations-admin { background: #fff; border-radius: 12px; padding: 1rem; box-shadow: 0 2px 20px rgba(74,64,67,0.08); margin-bottom: 1rem; max-height: 420px; overflow-y: auto; }
+    .prestations-admin .prestation-row { display: grid; grid-template-columns: 1fr 100px 80px; gap: 0.75rem; align-items: center; padding: 0.5rem 0; border-bottom: 1px solid #f0e6e8; }
+    .prestations-admin .prestation-row:last-child { border-bottom: none; }
+    .prestations-admin .prestation-row input { margin: 0; }
+    .prestations-admin .prestation-row .prestation-num { font-size: 0.85rem; color: #7a6d70; }
+    .prestations-admin .prestation-row .prestation-num input[type="hidden"] { display: none; }
+    @media (max-width: 600px) { .prestations-admin .prestation-row { grid-template-columns: 1fr 80px; } .prestations-admin .prestation-row .prestation-num { grid-column: 1; } }
   </style>
 </head>
 <body>
@@ -125,6 +132,12 @@
       <h2>📅 Demandes de réservation <span class="badge" id="bookingsCount">0</span></h2>
       <p class="small" style="margin-bottom: 0.5rem;">Les demandes envoyées via le formulaire « Book » du site.</p>
       <div id="bookingsList" class="bookings-list"></div>
+
+      <h2>💰 Prestations (noms et prix) <span class="badge" id="prestationsCount">0</span></h2>
+      <p class="small" style="margin-bottom: 0.5rem;">Modifiez les noms et les prix des coiffures. Ils apparaissent sur la page Services & Prices et dans le formulaire de réservation.</p>
+      <div id="prestationsMsg" class="msg"></div>
+      <div id="prestationsList" class="prestations-admin"></div>
+      <p style="margin-top: 0.5rem;"><button type="button" id="prestationsSaveBtn" class="btn">Enregistrer les prestations</button></p>
 
       <h2>✏️ Modifier le contenu du site</h2>
       <div id="contentMsg" class="msg"></div>
@@ -200,6 +213,7 @@
           loadContent();
           loadImages();
           loadBookings();
+          loadPrestations();
         } else {
           document.getElementById('loginBox').style.display = 'block';
           document.getElementById('dashboard').style.display = 'none';
@@ -351,6 +365,65 @@
         });
       } catch (e) {}
     }
+
+    async function loadPrestations() {
+      const listEl = document.getElementById('prestationsList');
+      const countEl = document.getElementById('prestationsCount');
+      if (!listEl) return;
+      try {
+        const r = await apiGet('/prestations');
+        if (r.status === 401) {
+          if (countEl) countEl.textContent = '0';
+          listEl.innerHTML = '<p class="small err">Session expirée. Reconnectez-vous.</p>';
+          return;
+        }
+        const data = await r.json().catch(function() { return {}; });
+        const prestations = data.prestations || [];
+        if (countEl) countEl.textContent = prestations.length;
+        if (prestations.length === 0) {
+          listEl.innerHTML = '<p class="small">Aucune prestation. Ajoutez-en via l’API ou créez <code>prestations.json</code>.</p>';
+          return;
+        }
+        listEl.innerHTML = prestations.map(function(p, i) {
+          var id = (p.id || '').replace(/"/g, '&quot;');
+          var name = (p.name || '').replace(/"/g, '&quot;').replace(/</g, '&lt;');
+          var price = (p.price != null && p.price !== undefined) ? String(p.price).replace(/"/g, '&quot;') : '';
+          var img = (p.image || '').replace(/"/g, '&quot;');
+          return '<div class="prestation-row" data-index="' + i + '"><span class="prestation-num">' + (i + 1) + '<input type="hidden" class="prestation-id" value="' + id + '"><input type="hidden" class="prestation-image" value="' + img + '"></span><input type="text" class="prestation-name" value="' + name + '" placeholder="Nom de la coiffure"><input type="text" class="prestation-price" value="' + price + '" placeholder="Prix"></div>';
+        }).join('');
+      } catch (e) {
+        listEl.innerHTML = '<p class="small">Impossible de charger les prestations.</p>';
+        if (countEl) countEl.textContent = '0';
+      }
+    }
+
+    document.getElementById('prestationsSaveBtn').addEventListener('click', async function() {
+      const msg = document.getElementById('prestationsMsg');
+      const btn = document.getElementById('prestationsSaveBtn');
+      const listEl = document.getElementById('prestationsList');
+      var rows = listEl.querySelectorAll('.prestation-row');
+      var prestations = [];
+      rows.forEach(function(row) {
+        var id = (row.querySelector('.prestation-id') || {}).value || '';
+        var name = (row.querySelector('.prestation-name') || {}).value || '';
+        var price = (row.querySelector('.prestation-price') || {}).value || '';
+        var image = (row.querySelector('.prestation-image') || {}).value || '';
+        prestations.push({ id: id, name: name, price: price, image: image });
+      });
+      btn.disabled = true;
+      try {
+        const r = await apiPut('/prestations', { prestations: prestations });
+        const data = await r.json().catch(function() { return {}; });
+        if (r.ok) {
+          showMsg(msg, 'Prestations enregistrées. Actualisez la page Services & Prices du site.', false);
+        } else {
+          showMsg(msg, data.error || 'Erreur', true);
+        }
+      } catch (err) {
+        showMsg(msg, 'Erreur réseau', true);
+      }
+      btn.disabled = false;
+    });
 
     document.getElementById('contentForm').addEventListener('submit', async (e) => {
       e.preventDefault();

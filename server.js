@@ -15,6 +15,7 @@ const app = express();
 const PORT = process.env.PORT || 3000;
 const CONTENT_FILE = path.join(__dirname, 'content.json');
 const BOOKINGS_FILE = path.join(__dirname, 'bookings.json');
+const PRESTATIONS_FILE = path.join(__dirname, 'prestations.json');
 const IMAGES_DIR = path.join(__dirname, 'images');
 const isProduction = process.env.NODE_ENV === 'production';
 
@@ -181,6 +182,35 @@ app.put('/api/content', requireAuth, (req, res) => {
   }
 });
 
+// Prestations (noms + prix) – lecture publique, écriture admin
+app.get('/api/prestations', (req, res) => {
+  try {
+    if (!fs.existsSync(PRESTATIONS_FILE)) return res.json({ prestations: [] });
+    const data = JSON.parse(fs.readFileSync(PRESTATIONS_FILE, 'utf8'));
+    const list = Array.isArray(data) ? data : (data.prestations || []);
+    res.json({ prestations: list });
+  } catch (e) {
+    res.status(500).json({ error: 'Fichier prestations.json invalide' });
+  }
+});
+
+app.put('/api/prestations', requireAuth, (req, res) => {
+  try {
+    const list = req.body && req.body.prestations;
+    if (!Array.isArray(list)) return res.status(400).json({ error: 'prestations doit être un tableau' });
+    const safe = list.map(p => ({
+      id: String(p.id || '').trim() || 'p' + Date.now() + Math.random().toString(36).slice(2),
+      name: String(p.name || '').trim() || 'Sans nom',
+      price: String(p.price != null ? p.price : '').trim() || '0',
+      image: String(p.image || '').trim() || 'placeholder.svg'
+    }));
+    fs.writeFileSync(PRESTATIONS_FILE, JSON.stringify(safe, null, 2), 'utf8');
+    res.json({ prestations: safe });
+  } catch (e) {
+    res.status(500).json({ error: e.message });
+  }
+});
+
 // Réservations / demandes de rendez-vous (public)
 app.post('/api/booking', (req, res) => {
   try {
@@ -268,6 +298,7 @@ app.get('/api/bookings', requireAuth, (req, res) => {
 });
 
 // Page admin : protégée côté client (le HTML charge, le JS redirige si non connecté)
+app.get('/admin', (req, res) => res.redirect(301, '/admin/'));
 app.get('/admin/', (req, res) => {
   res.sendFile(path.join(__dirname, 'admin', 'index.html'));
 });
